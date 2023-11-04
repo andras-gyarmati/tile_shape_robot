@@ -38,18 +38,20 @@ class TriangularLattice:
 
     def get_neighbor(self, position, direction):
         x, y = position
+        # For even x, the neighbors are higher; for odd x, they are lower.
+        offset = 0.5 if x % 2 == 0 else -0.5
         if direction == 'N':
             return (x, y + 1)
         elif direction == 'NE':
-            return (x + 1, y if x % 2 == 0 else y + 1)
+            return (x + 1, y + offset)
         elif direction == 'SE':
-            return (x + 1, y if x % 2 != 0 else y - 1)
+            return (x + 1, y - offset)
         elif direction == 'S':
             return (x, y - 1)
         elif direction == 'SW':
-            return (x - 1, y if x % 2 != 0 else y - 1)
+            return (x - 1, y - offset)
         elif direction == 'NW':
-            return (x - 1, y if x % 2 == 0 else y + 1)
+            return (x - 1, y + offset)
         return None
 
     def is_connected(self):
@@ -70,22 +72,25 @@ class TriangularLattice:
     def display(self):
         """Prints a simple representation of the grid with tiles and the robot's position."""
         # Determine grid bounds
-        min_x = min(self.tiles.keys(), key=lambda t: t[0])[0]
-        max_x = max(self.tiles.keys(), key=lambda t: t[0])[0]
-        min_y = min(self.tiles.keys(), key=lambda t: t[1])[1]
-        max_y = max(self.tiles.keys(), key=lambda t: t[1])[1]
+        min_x = min((x for (x, y) in self.tiles), default=0)
+        max_x = max((x for (x, y) in self.tiles), default=0)
+        min_y = min((y for (x, y) in self.tiles), default=0)
+        max_y = max((y for (x, y) in self.tiles), default=0)
 
         # Display the grid
         for y in range(max_y, min_y - 1, -1):
-            line = ""
+            offset = " " if y % 2 != 0 else ""  # Shift for every other row
+            line = offset
             for x in range(min_x, max_x + 1):
-                if (x, y) in self.tiles and self.tiles[(x, y)].occupied:
-                    line += "[X]" if (x, y) != self.robot_position else "[R]"
-                elif (x, y) == self.robot_position:
-                    line += "[r]"
-                else:
-                    line += " . "
+                symbol = " ."  # Space and dot for an empty tile
+                if (x, y) in self.tiles:
+                    if self.tiles[(x, y)].occupied:
+                        symbol = " X"  # Space and X for an occupied tile
+                    if (x, y) == self.robot_position:
+                        symbol = " R" if self.robot_has_tile else " r"  # Space and R or r for the robot
+                line += symbol
             print(line)
+        print()
 
 
 def main():
