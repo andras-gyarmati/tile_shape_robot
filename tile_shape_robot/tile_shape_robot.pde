@@ -139,15 +139,15 @@ class TriangularLattice {
     for (int x = 0; x < tiles.length; x++) {
       for (int y = 0; y < tiles[x].length; y++) {
         if (!tiles[x][y]) continue;
-        float pixelX = x * this.radius * 0.758f + this.radius / 2;
-        float pixelY = (y * this.radius * 0.871f) / 2;
+        float pixelX = x * this.radius * 0.758f * 2 + this.radius;
+        float pixelY = (y * this.radius * 0.871f);
         if (this.finishedLine) {
-          drawHexagon(pixelX, pixelY, this.radius / 2, color(0, 200, 0));
+          drawHexagon(pixelX, pixelY, this.radius, color(0, 200, 0));
         } else {
-          drawHexagon(pixelX, pixelY, this.radius / 2, color(128, 128, 128));
+          drawHexagon(pixelX, pixelY, this.radius, color(128, 128, 128));
         }
         if (this.robotPosition.x == x && this.robotPosition.y == y) {
-          drawRobot(pixelX, pixelY, this.radius / 4);
+          drawRobot(pixelX, pixelY, this.radius / 2);
         }
       }
     }
@@ -196,7 +196,7 @@ TriangularLattice lattice;
 
 void setup() {
   size(1000, 1000);
-  lattice = new TriangularLattice(40, 8, 32);
+  lattice = new TriangularLattice(36, 8, 32);
 
   lattice.addTile(6, 32);
   lattice.addTile(7, 33);
