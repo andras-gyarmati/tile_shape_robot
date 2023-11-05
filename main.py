@@ -39,7 +39,7 @@ class TriangularLattice:
   def get_neighbor(self, position, direction):
     x, y = position
     # For even x, the neighbors are higher; for odd x, they are lower.
-    offset = 0.5 if x % 2 == 0 else -0.5
+    offset = 0.5
     if direction == 'N':
       return (x, y + 1)
     elif direction == 'NE':
@@ -96,10 +96,10 @@ class TriangularLattice:
 def main():
   lattice = TriangularLattice()
   # Add tiles to the lattice
-  lattice.add_tile((0, 0))
-  lattice.add_tile((1, 0))
-  lattice.add_tile((0, 1))
-  lattice.add_tile((1, 1))
+  for x in range(-2, 3):
+    for y in range(-2, 3):
+      lattice.add_tile((x, y))
+  lattice.display()
 
   # Initial robot position and tile picking
   lattice.move_robot('N')
