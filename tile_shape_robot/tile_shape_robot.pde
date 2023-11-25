@@ -25,7 +25,7 @@ class TriangularLattice {
   TriangularLattice(int n, int rx, int ry) {
     this.n = n;
     this.radius = width / (float)this.n;
-    this.tiles = new boolean[this.n][this.n]; // Assuming a square grid for simplicity
+    this.tiles = new boolean[this.n][this.n];
     this.robotPosition = new Point(rx, ry);
     this.robotHasTile = false;
     this.lineBuildState = 0;
@@ -129,7 +129,7 @@ class TriangularLattice {
       this.lineBuildState = 0;
     }
   }
-
+  
   boolean tileExists(Point pos) {
     return pos.x >= 0 && pos.x < tiles.length && pos.y >= 0 && pos.y < tiles[0].length && tiles[pos.x][pos.y];
   }
@@ -152,6 +152,10 @@ class TriangularLattice {
       }
     }
   }
+}
+
+String getRandomDir() {
+  return dirs.get(floor(random(dirs.size())));
 }
 
 Point dirToDisplacement(String dir) {
@@ -193,20 +197,34 @@ void drawHexagon(float x, float y, float radius, color col) {
 }
 
 TriangularLattice lattice;
+ArrayList<String> dirs = new ArrayList<String>();
 
 void setup() {
   size(1000, 1000);
-  lattice = new TriangularLattice(36, 8, 32);
+  int len = 36;
+  Point p = new Point(floor(width / len / 3), floor(height / len / 3));
 
-  lattice.addTile(6, 32);
-  lattice.addTile(7, 33);
-  lattice.addTile(8, 32);
-  lattice.addTile(7, 29);
-  lattice.addTile(8, 30);
-  lattice.addTile(6, 30);
-  lattice.addTile(8, 34);
+  lattice = new TriangularLattice(len, p.x, p.y);
 
-  frameRate(3);
+  dirs.add("N");
+  dirs.add("NE");
+  dirs.add("SE");
+  dirs.add("S");
+  dirs.add("SW");
+  dirs.add("NW");
+  
+  lattice.addTile(p.x, p.y);
+  for (int i = 0; i < 10; i++) {
+    String rd = getRandomDir();
+    println(rd);
+    Point dp = dirToDisplacement(rd);
+    println(dp.x, dp.y);
+    p = p.add(dp);
+    lattice.addTile(p.x, p.y);
+    println(p.x, p.y);
+  }
+
+  frameRate(5);
 }
 
 void draw() {
