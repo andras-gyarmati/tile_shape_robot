@@ -21,6 +21,7 @@ class TriangularLattice {
   int searchTileDirState;
   String[] searchTileDirs;
   boolean finishedLine;
+  boolean robotFinishedLine;
 
   TriangularLattice(int n, int rx, int ry) {
     this.n = n;
@@ -32,6 +33,7 @@ class TriangularLattice {
     this.searchTileDirState = 0;
     this.searchTileDirs = new String[]{"N", "NW", "SW"};
     this.finishedLine = false;
+    this.robotFinishedLine = false;
   }
 
   void addTile(int x, int y) {
@@ -93,21 +95,50 @@ class TriangularLattice {
   }
 
   void moveTileSE() {
-    Point nextPos = this.robotPosition.add(dirToDisplacement("SE"));
-    boolean isEasternmostCol = true;
-    for (boolean cell : this.tiles[nextPos.x]) {
+    // ha van N es N
+    Point nextPosE = this.robotPosition.add(dirToDisplacement("SE"));
+    Point nextPosNE = this.robotPosition.add(dirToDisplacement("NE"));
+    Point nextPosW = this.robotPosition.add(dirToDisplacement("NW"));
+    Point nextPosSW = this.robotPosition.add(dirToDisplacement("SW"));
+    //Point nextPosN = this.robotPosition.add(dirToDisplacement("N"));
+    Point nextPosS = this.robotPosition.add(dirToDisplacement("S"));
+    //boolean isEasternmostCol = true;
+    this.robotFinishedLine = true;
+    for (boolean cell : this.tiles[nextPosE.x]) {
       if (cell) {
-        isEasternmostCol = false;
+        //isEasternmostCol = false;
+        this.robotFinishedLine = false;
       }
     }
-    if (isEasternmostCol) {
-      this.lineBuildState = 4;
+    if(robotFinishedLine){
+      for (boolean cell : this.tiles[nextPosSW.x]) {
+        if (cell) {
+          this.robotFinishedLine = false;
+      }
+    }
+    }
+    /*for (boolean cell : this.tiles[nextPosS.x]) {
+      if ((tileExists(nextPosE) || tileExists(nextPosW) || tileExists(nextPosSW) || tileExists(nextPosNE))) {
+        this.robotFinishedLine = false;
+        this.lineBuildState = 0;
+      }
+    }*/
+    /*if ((tileExists(nextPosE) || tileExists(nextPosW) || tileExists(nextPosSW) || tileExists(nextPosNE))) {
+      this.robotFinishedLine = false;
+      this.lineBuildState = 0;
+    }*/
+    /*if ((!tileExists(nextPosE) && !tileExists(nextPosW) && !tileExists(nextPosSW) && !tileExists(nextPosNE))) {
+      this.robotFinishedLine = true;
+    }
+    }*/
+    if (this.robotFinishedLine) {
+      this.lineBuildState = 4; 
       this.finishedLine = true;
       return;
-    }
+      }
     this.robotHasTile = true;
     this.tiles[this.robotPosition.x][this.robotPosition.y] = false;
-    if (tileExists(nextPos)) {
+    if (tileExists(nextPosE) || tileExists(nextPosW)) {
       this.moveRobot("SE");
       this.lineBuildState = 3;
     } else {
@@ -130,11 +161,11 @@ class TriangularLattice {
     }
   }
   
-  boolean tileExists(Point pos) {
+boolean tileExists(Point pos) {
     return pos.x >= 0 && pos.x < tiles.length && pos.y >= 0 && pos.y < tiles[0].length && tiles[pos.x][pos.y];
-  }
+}
 
-  void display() {
+void display() {
     stroke(255);
     for (int x = 0; x < tiles.length; x++) {
       for (int y = 0; y < tiles[x].length; y++) {
@@ -151,7 +182,6 @@ class TriangularLattice {
         }
       }
     }
-  }
 }
 
 String getRandomDir() {
@@ -202,7 +232,7 @@ ArrayList<String> dirs = new ArrayList<String>();
 void setup() {
   size(1000, 1000);
   int len = 36;
-  Point p = new Point(floor(width / len / 3), floor(height / len / 3));
+  Point p = new Point(floor(width / len / 3), floor(height / len / 1));
 
   lattice = new TriangularLattice(len, p.x, p.y);
 
@@ -216,15 +246,18 @@ void setup() {
   lattice.addTile(p.x, p.y);
   for (int i = 0; i < 10; i++) {
     String rd = getRandomDir();
-    println(rd);
+    println(rd); //fajlba
+    // writeToFile(filename, rd);
     Point dp = dirToDisplacement(rd);
-    println(dp.x, dp.y);
+    println(dp.x, dp.y); //fajlba
+    // writeToFile(filename, dp.x, dp.y);
     p = p.add(dp);
     lattice.addTile(p.x, p.y);
-    println(p.x, p.y);
+    println(p.x, p.y); // fajlba
+    // writeToFile(filename, p.x, p.y);
   }
 
-  frameRate(5);
+  frameRate(50);
 }
 
 void draw() {
@@ -233,4 +266,17 @@ void draw() {
   background(255);
   lattice.buildLine();
   lattice.display();
+}
+
+void readFromFile(String fileName){
+  String[] lines = loadStrings(fileName);
+  println("number of lines:" + lines.length);
+  for (int i = 0 ; i < lines.length; i++) {
+    println(lines[i]);
+  }
+  // beolvasas
+}
+
+void writeToFile(filename, str1, str2){
+  // kiir a setupbol
 }
