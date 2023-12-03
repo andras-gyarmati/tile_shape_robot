@@ -1,7 +1,3 @@
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.BufferedWriter;
-
 class Point {
   int x, y;
 
@@ -45,37 +41,24 @@ class TriangularLattice {
   }
 
   void serializeLatticeState() {
-    String filename = "lattices.txt";
-    try (FileWriter fw = new FileWriter(filename, true);
-    BufferedWriter bw = new BufferedWriter(fw);
-    PrintWriter out = new PrintWriter(bw)) {
-      out.println("lattice_id: " + simCount + " tile count: " + this.tileCount);
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-    }
+    lattices_output.println("lattice_id: " + simCount + " tile count: " + this.tileCount);
+    lattices_output.flush();
   }
 
   void writeSimulationStats() {
-    String filename = "simulation_stats.txt";
-    try (FileWriter fw = new FileWriter(filename, true);
-    BufferedWriter bw = new BufferedWriter(fw);
-    PrintWriter out = new PrintWriter(bw)) {
-      out.println(simCount + ": move count: " + moveCount);
-      // Add other stats here as needed
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-    }
+    simulation_stats_output.println(simCount + ": move count: " + moveCount);
+    simulation_stats_output.flush();
   }
 
   void addTile(int x, int y) {
     if (x % 2 != y % 2) {
-      println("ERROR: x % 2 !== y % 2");
+      println("ERROR: x % 2 !== y % 2"); //<>//
       return;
     }
-    this.tiles[x][y] = true;
-    this.tileCount++;
+    if (!this.tiles[x][y]) {
+      this.tiles[x][y] = true;
+      this.tileCount++;
+    }
   }
 
   void moveRobot(String dir) {
@@ -86,7 +69,7 @@ class TriangularLattice {
 
   void buildLine() {
     switch (this.lineBuildState) {
-    case 0:
+    case 0: //<>//
       goSouth();
       break;
     case 1:
@@ -152,15 +135,15 @@ class TriangularLattice {
       this.robotHasTile = false;
       this.tiles[this.robotPosition.x][this.robotPosition.y] = true;
       this.lineBuildState = 0;
-    }
+    } //<>//
   }
 
   void moveTileS() {
-    Point nextPos = this.robotPosition.add(dirToDisplacement("S"));
+    Point nextPos = this.robotPosition.add(dirToDisplacement("S")); //<>//
     if (tileExists(nextPos)) {
       this.moveRobot("S");
     } else {
-      this.moveRobot("S");
+      this.moveRobot("S"); //<>//
       this.robotHasTile = false;
       this.tiles[this.robotPosition.x][this.robotPosition.y] = true;
       this.lineBuildState = 0;
@@ -180,7 +163,7 @@ class TriangularLattice {
         float pixelY = (y * this.radius * 0.871f);
         if (this.finishedLine) {
           drawHexagon(pixelX, pixelY, this.radius, color(0, 200, 0));
-        } else {
+        } else { //<>//
           drawHexagon(pixelX, pixelY, this.radius, color(128, 128, 128));
         }
         if (this.robotPosition.x == x && this.robotPosition.y == y) {
@@ -237,8 +220,12 @@ TriangularLattice lattice;
 ArrayList<String> dirs = new ArrayList<String>();
 int gridSize = 128;
 int simCount = 0;
+PrintWriter lattices_output;
+
 void setup() {
   size(1024, 1024);
+
+  lattices_output = createWriter("lattices.csv");
 
   dirs.add("N");
   dirs.add("NE");
@@ -247,7 +234,7 @@ void setup() {
   dirs.add("SW");
   dirs.add("NW");
 
-  initLattice(gridSize);
+  initLattice(gridSize); //<>//
 
   frameRate(60);
 }
@@ -274,7 +261,6 @@ void draw() {
   lattice.display();
   if (lattice.finishedLine) {
     lattice.serializeLatticeState();
-    lattice.writeSimulationStats();
     simCount++;
     initLattice(gridSize);
     println("finished");
