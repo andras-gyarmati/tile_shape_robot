@@ -1,3 +1,7 @@
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.BufferedWriter;
+
 class Point {
   int x, y;
 
@@ -25,6 +29,8 @@ class TriangularLattice {
   int searchTileDirState;
   String[] searchTileDirs;
   boolean finishedLine;
+  int moveCount = 0;
+  int tileCount = 0;
 
   TriangularLattice(int n, int rx, int ry) {
     this.gridSize = n;
@@ -38,17 +44,44 @@ class TriangularLattice {
     this.finishedLine = false;
   }
 
+  void serializeLatticeState() {
+    String filename = "lattices.txt";
+    try (FileWriter fw = new FileWriter(filename, true);
+    BufferedWriter bw = new BufferedWriter(fw);
+    PrintWriter out = new PrintWriter(bw)) {
+      out.println("lattice_id: " + simCount + " tile count: " + this.tileCount);
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  void writeSimulationStats() {
+    String filename = "simulation_stats.txt";
+    try (FileWriter fw = new FileWriter(filename, true);
+    BufferedWriter bw = new BufferedWriter(fw);
+    PrintWriter out = new PrintWriter(bw)) {
+      out.println(simCount + ": move count: " + moveCount);
+      // Add other stats here as needed
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
   void addTile(int x, int y) {
     if (x % 2 != y % 2) {
       println("ERROR: x % 2 !== y % 2");
       return;
     }
     this.tiles[x][y] = true;
+    this.tileCount++;
   }
 
   void moveRobot(String dir) {
     Point displacement = dirToDisplacement(dir);
     this.robotPosition = this.robotPosition.add(displacement);
+    this.moveCount++;
   }
 
   void buildLine() {
@@ -203,7 +236,7 @@ void drawHexagon(float x, float y, float radius, color col) {
 TriangularLattice lattice;
 ArrayList<String> dirs = new ArrayList<String>();
 int gridSize = 128;
-
+int simCount = 0;
 void setup() {
   size(1024, 1024);
 
@@ -240,7 +273,10 @@ void draw() {
   lattice.buildLine();
   lattice.display();
   if (lattice.finishedLine) {
-      initLattice(gridSize);
-      println("finished");
+    lattice.serializeLatticeState();
+    lattice.writeSimulationStats();
+    simCount++;
+    initLattice(gridSize);
+    println("finished");
   }
 }
