@@ -9,10 +9,14 @@ class Point {
   Point add(Point other) {
     return new Point(this.x + other.x, this.y + other.y);
   }
+
+  Point clone() {
+    return new Point(this.x, this.y);
+  }
 }
 
 class TriangularLattice {
-  int n;
+  int gridSize;
   float radius;
   boolean[][] tiles;
   Point robotPosition;
@@ -23,9 +27,9 @@ class TriangularLattice {
   boolean finishedLine;
 
   TriangularLattice(int n, int rx, int ry) {
-    this.n = n;
-    this.radius = width / (float)this.n;
-    this.tiles = new boolean[this.n][this.n];
+    this.gridSize = n;
+    this.radius = width / (float)this.gridSize;
+    this.tiles = new boolean[this.gridSize][this.gridSize];
     this.robotPosition = new Point(rx, ry);
     this.robotHasTile = false;
     this.lineBuildState = 0;
@@ -36,7 +40,7 @@ class TriangularLattice {
 
   void addTile(int x, int y) {
     if (x % 2 != y % 2) {
-      println("x % 2 !== y % 2");
+      println("ERROR: x % 2 !== y % 2");
       return;
     }
     this.tiles[x][y] = true;
@@ -129,7 +133,7 @@ class TriangularLattice {
       this.lineBuildState = 0;
     }
   }
-  
+
   boolean tileExists(Point pos) {
     return pos.x >= 0 && pos.x < tiles.length && pos.y >= 0 && pos.y < tiles[0].length && tiles[pos.x][pos.y];
   }
@@ -173,7 +177,7 @@ Point dirToDisplacement(String dir) {
   case "SW":
     return new Point(-1, -1);
   default:
-    println("can not go " + dir + ".");
+    println("ERROR: can not go " + dir + ".");
     return new Point(0, 0);
   }
 }
@@ -198,13 +202,10 @@ void drawHexagon(float x, float y, float radius, color col) {
 
 TriangularLattice lattice;
 ArrayList<String> dirs = new ArrayList<String>();
+int gridSize = 128;
 
 void setup() {
-  size(1000, 1000);
-  int len = 36;
-  Point p = new Point(floor(width / len / 3), floor(height / len / 3));
-
-  lattice = new TriangularLattice(len, p.x, p.y);
+  size(1024, 1024);
 
   dirs.add("N");
   dirs.add("NE");
@@ -212,19 +213,24 @@ void setup() {
   dirs.add("S");
   dirs.add("SW");
   dirs.add("NW");
-  
-  lattice.addTile(p.x, p.y);
+
+  initLattice(gridSize);
+
+  frameRate(60);
+}
+
+void initLattice(int gridSize) {
+  Point robotPos = new Point(floor(gridSize / 3), floor(gridSize / 3 * 2));
+  lattice = new TriangularLattice(gridSize, robotPos.x, robotPos.y);
+  lattice.addTile(robotPos.x, robotPos.y);
   for (int i = 0; i < 10; i++) {
     String rd = getRandomDir();
-    println(rd);
     Point dp = dirToDisplacement(rd);
-    println(dp.x, dp.y);
-    p = p.add(dp);
-    lattice.addTile(p.x, p.y);
-    println(p.x, p.y);
+    //println(robotPos.x, robotPos.y, rd, dp.x, dp.y);
+    robotPos = robotPos.add(dp);
+    lattice.addTile(robotPos.x, robotPos.y);
+    //println(robotPos.x, robotPos.y);
   }
-
-  frameRate(5);
 }
 
 void draw() {
@@ -233,4 +239,8 @@ void draw() {
   background(255);
   lattice.buildLine();
   lattice.display();
+  if (lattice.finishedLine) {
+      initLattice(gridSize);
+      println("finished");
+  }
 }
